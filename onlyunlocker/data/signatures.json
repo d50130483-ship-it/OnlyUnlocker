@@ -1,0 +1,393 @@
+{
+  "version": "2026.10.23",
+  "updated": "2026-10-23",
+  "description": "Стартовая база OnlyUnlocker. Хеши и шаблоны носят учебно-практический характер: они описывают классы угроз (тестовые файлы, hacktools, скриптовые загрузчики, шифровальщики), а не конкретные приватные образцы.",
+  "hashes": [
+    {
+      "sha256": "275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f",
+      "name": "EICAR-Test-File",
+      "family": "Test",
+      "severity": "high"
+    }
+  ],
+  "patterns": [
+    {
+      "name": "HackTool.Mimikatz.Strings",
+      "hex": "73 65 6b 75 72 6c 73 61 3a 3a 6c 6f 67 6f 6e 70 61 73 73 77 6f 72 64 73",
+      "scope": "head",
+      "max_scan": 2097152,
+      "severity": "high",
+      "family": "HackTool"
+    },
+    {
+      "name": "HackTool.Mimikatz.Banner",
+      "hex": "67 65 6e 74 69 6c 6b 69 77 69",
+      "scope": "head",
+      "max_scan": 2097152,
+      "severity": "high",
+      "family": "HackTool"
+    },
+    {
+      "name": "Ransom.Note.Generic",
+      "hex": "79 6f 75 72 20 66 69 6c 65 73 20 68 61 76 65 20 62 65 65 6e 20 65 6e 63 72 79 70 74 65 64",
+      "scope": "head",
+      "max_scan": 262144,
+      "severity": "high",
+      "family": "Ransom"
+    },
+    {
+      "name": "Stealer.Exfil.BrowserCreds",
+      "hex": "4c 6f 67 69 6e 20 44 61 74 61 00 00 00",
+      "scope": "head",
+      "max_scan": 2097152,
+      "severity": "medium",
+      "family": "Stealer"
+    },
+    {
+      "name": "Backdoor.Metasploit.Stage",
+      "hex": "6d 65 74 65 72 70 72 65 74 65 72",
+      "scope": "all",
+      "max_scan": 4194304,
+      "severity": "high",
+      "family": "Backdoor"
+    },
+    {
+      "name": "PUA.Keygen.Stub.Marker",
+      "hex": "4b 45 59 47 45 4e 20 62 79",
+      "scope": "head",
+      "max_scan": 1048576,
+      "severity": "low",
+      "family": "PUA"
+    }
+  ],
+  "rules": [
+    {
+      "name": "Script.PowerShell.EncodedCommand",
+      "title": "PowerShell с закодированной командой",
+      "description": "Запуск PowerShell с параметром -EncodedCommand — типовой способ скрыть полезную нагрузку.",
+      "regex": "powershell(?:\\.exe)?[^\\n]{0,120}?\\s-(?:enc|encodedcommand|e)\\s+[A-Za-z0-9+/=]{40,}",
+      "extensions": [
+        ".ps1",
+        ".bat",
+        ".cmd",
+        ".vbs",
+        ".js",
+        ".hta",
+        ".txt",
+        ".py",
+        ".jse",
+        ".wsf"
+      ],
+      "severity": "high",
+      "family": "Loader"
+    },
+    {
+      "name": "Script.PowerShell.DownloadCradle",
+      "title": "Скачивание и запуск кода из сети",
+      "description": "Комбинация DownloadString/Invoke-WebRequest с последующим исполнением (IEX).",
+      "regex": "(?:(?:downloadstring|downloadfile|invoke-webrequest|invoke-restmethod|start-bitstransfer)[\\s\\S]{0,300}?(?:iex|invoke-expression|\\|\\s*(?:iex|powershell))|(?:iex|invoke-expression)[\\s\\S]{0,300}?(?:downloadstring|downloadfile|invoke-webrequest))",
+      "extensions": [
+        ".ps1",
+        ".bat",
+        ".cmd",
+        ".vbs",
+        ".js",
+        ".hta",
+        ".txt",
+        ".jse",
+        ".wsf"
+      ],
+      "severity": "critical",
+      "family": "Loader"
+    },
+    {
+      "name": "Script.PowerShell.AmsiBypass",
+      "title": "Обход AMSI / отключение защиты",
+      "description": "Скрипт пытается отключить антивирусную проверку AMSI или Defender.",
+      "regex": "(?:amsiutils|amsiscanbuffer|set-mppreference[^\\n]{0,80}disable|add-mppreference[^\\n]{0,80}exclusion|disablerealtimemonitoring)",
+      "extensions": [
+        ".ps1",
+        ".bat",
+        ".cmd",
+        ".vbs",
+        ".js",
+        ".hta",
+        ".txt",
+        ".py",
+        ".wsf"
+      ],
+      "severity": "critical",
+      "family": "DefenseEvasion"
+    },
+    {
+      "name": "Script.PowerShell.HiddenWindow",
+      "title": "Скрытый запуск процесса",
+      "description": "Признаки запуска без окна: -WindowStyle Hidden, wscript.shell Run с 0.",
+      "regex": "(?:-windowstyle\\s+hidden|wscript\\.shell[^\\n]{0,160}?,\\s*0\\s*,\\s*(?:true|false))",
+      "extensions": [
+        ".ps1",
+        ".bat",
+        ".cmd",
+        ".vbs",
+        ".js",
+        ".hta",
+        ".wsf"
+      ],
+      "severity": "medium",
+      "family": "Trojan"
+    },
+    {
+      "name": "Script.Disable.TaskManager",
+      "title": "Блокировка диспетчера задач и реестра",
+      "description": "Правка политик DisableTaskMgr / DisableRegistryTools — поведение, характерное для вымогателей и блокеров.",
+      "regex": "(?:disabletaskmgr|disableregistrytools|nofolderoptions|disablecmd)",
+      "extensions": [
+        ".reg",
+        ".bat",
+        ".cmd",
+        ".ps1",
+        ".vbs",
+        ".txt",
+        ".js"
+      ],
+      "severity": "high",
+      "family": "Blocker"
+    },
+    {
+      "name": "Script.Registry.RunKey",
+      "title": "Автозапуск через реестр",
+      "description": "Запись в ключи автозагрузки Run / RunOnce.",
+      "regex": "(?:currentversion\\\\run(?:once)?[^\"]{0,200}|reg\\s+add[^\\n]{0,200}\\\\run)",
+      "extensions": [
+        ".bat",
+        ".cmd",
+        ".reg",
+        ".ps1",
+        ".vbs",
+        ".js",
+        ".txt"
+      ],
+      "severity": "medium",
+      "family": "Loader"
+    },
+    {
+      "name": "Script.Cmd.Del.ShadowCopy",
+      "title": "Удаление теневых копий",
+      "description": "vssadmin delete shadows / wbadmin delete — подготовка к шифрованию файлов.",
+      "regex": "(?:vssadmin(?:\\.exe)?\\s+delete\\s+shadows|wbadmin[^\\n]{0,60}delete\\s+(?:catalog|systemstatebackup))",
+      "extensions": [
+        ".bat",
+        ".cmd",
+        ".ps1",
+        ".txt",
+        ".vbs"
+      ],
+      "severity": "critical",
+      "family": "Ransom"
+    },
+    {
+      "name": "Script.Cmd.BcdEdit.Recovery",
+      "title": "Отключение восстановления системы",
+      "description": "bcdedit /set recoveryenabled no — типичный шаг шифровальщиков.",
+      "regex": "bcdedit(?:\\.exe)?[^\\n]{0,80}recoveryenabled\\s+no",
+      "extensions": [
+        ".bat",
+        ".cmd",
+        ".ps1",
+        ".txt",
+        ".vbs"
+      ],
+      "severity": "high",
+      "family": "Ransom"
+    },
+    {
+      "name": "Script.Base64.Payload",
+      "title": "Большой Base64-блок",
+      "description": "Длинная строка Base64 в скрипте — возможная закодированная нагрузка.",
+      "regex": "(?:frombase64string|base64_decode|atob\\()",
+      "extensions": [
+        ".ps1",
+        ".vbs",
+        ".js",
+        ".hta",
+        ".jse",
+        ".wsf",
+        ".bat",
+        ".cmd"
+      ],
+      "severity": "medium",
+      "family": "Loader"
+    },
+    {
+      "name": "Script.WMI.Persistence",
+      "title": "Закрепление через WMI",
+      "description": "Создание __EventFilter / CommandLineEventConsumer — скрытая автозагрузка.",
+      "regex": "(?:__eventfilter|commandlineeventconsumer|__filtertoconsumerbinding)",
+      "extensions": [
+        ".ps1",
+        ".vbs",
+        ".js",
+        ".bat",
+        ".cmd",
+        ".txt"
+      ],
+      "severity": "high",
+      "family": "Persistence"
+    },
+    {
+      "name": "Script.Schtasks.Persistence",
+      "title": "Задача планировщика для автозапуска",
+      "description": "schtasks /create с SYSTEM или скрытой задачей.",
+      "regex": "schtasks(?:\\.exe)?[^\\n]{0,120}\\/create[^\\n]{0,160}",
+      "extensions": [
+        ".bat",
+        ".cmd",
+        ".ps1",
+        ".vbs",
+        ".txt"
+      ],
+      "severity": "low",
+      "family": "Persistence"
+    },
+    {
+      "name": "Script.Credential.Dump",
+      "title": "Обращение к хранилищу учётных данных",
+      "description": "vaultcmd / lsass / sekurlsa — попытки получить пароли.",
+      "regex": "(?:sekurlsa::|lsass\\.exe[^\\n]{0,60}(?:dump|procdump)|vaultcmd\\s+\\/listcreds)",
+      "extensions": [
+        ".ps1",
+        ".bat",
+        ".cmd",
+        ".txt",
+        ".py"
+      ],
+      "severity": "critical",
+      "family": "HackTool"
+    },
+    {
+      "name": "Doc.Macro.AutoExec",
+      "title": "Макрос с автозапуском",
+      "description": "VBA-макрос, исполняемый при открытии документа.",
+      "regex": "(?:auto_?open|document_open|workbook_open)\\s*\\(\\s*\\)",
+      "extensions": [
+        ".bas",
+        ".vba",
+        ".txt"
+      ],
+      "severity": "medium",
+      "family": "Macro"
+    },
+    {
+      "name": "Doc.Macro.Shell",
+      "title": "Макрос запускает внешний процесс",
+      "description": "WScript.Shell / Shell() внутри VBA — признак макровируса.",
+      "regex": "(?:createobject\\s*\\(\\s*\"wscript\\.shell\"|shell\\s*\\(\\s*\"cmd)",
+      "extensions": [
+        ".bas",
+        ".vba",
+        ".txt",
+        ".ps1"
+      ],
+      "severity": "high",
+      "family": "Macro"
+    },
+    {
+      "name": "Script.Webhook.Discord",
+      "title": "Отправка данных на Discord webhook",
+      "description": "Типовая эксфильтрация стилеров и инфо-ботов.",
+      "regex": "discord(?:app)?\\.com\\/api\\/webhooks\\/\\d+\\/[A-Za-z0-9_-]+",
+      "extensions": [
+        ".py",
+        ".js",
+        ".ps1",
+        ".bat",
+        ".cmd",
+        ".txt",
+        ".php",
+        ".vbs"
+      ],
+      "severity": "high",
+      "family": "Stealer"
+    },
+    {
+      "name": "Script.Telegram.BotExfil",
+      "title": "Отправка данных в Telegram-бота",
+      "description": "api.telegram.org/bot<token>/sendDocument или sendMessage.",
+      "regex": "api\\.telegram\\.org\\/bot\\d+:[-\\w]{30,}\\/send",
+      "extensions": [
+        ".py",
+        ".js",
+        ".ps1",
+        ".bat",
+        ".cmd",
+        ".txt",
+        ".php"
+      ],
+      "severity": "high",
+      "family": "Stealer"
+    },
+    {
+      "name": "Script.Miner.Pool",
+      "title": "Криптомайнер: пул для майнинга",
+      "description": "Адреса типовых пулов Stratum.",
+      "regex": "(?:stratum\\+(?:tcp|ssl):\\/\\/|minergate|supportxmr|nanopool\\.org|c3pool|2miners\\.com)",
+      "extensions": [
+        ".py",
+        ".js",
+        ".ps1",
+        ".bat",
+        ".cmd",
+        ".txt",
+        ".exe",
+        ".dll",
+        ".vbs"
+      ],
+      "severity": "medium",
+      "family": "Miner"
+    },
+    {
+      "name": "Script.Download.ExecChain",
+      "title": "Скачивание файла и запуск",
+      "description": "curl/wget/certutil с последующим запуском скачанного файла.",
+      "regex": "(?:certutil[^\\n]{0,120}-urlcache[^\\n]{0,200}-split)|(?:curl|wget)[^\\n]{0,200}&&[^\\n]{0,80}(?:start|\\.exe|\\.bat)",
+      "extensions": [
+        ".bat",
+        ".cmd",
+        ".ps1",
+        ".txt"
+      ],
+      "severity": "high",
+      "family": "Loader"
+    },
+    {
+      "name": "Script.Python.ReverseShell",
+      "title": "Обратный шелл на Python",
+      "description": "socket + connect + subprocess — удалённое управление.",
+      "regex": "socket\\.socket\\([^\\n]{0,80}\\)[\\s\\S]{0,400}?(?:subprocess|os\\.dup2|pty\\.spawn)",
+      "extensions": [
+        ".py",
+        ".pyw",
+        ".txt"
+      ],
+      "severity": "critical",
+      "family": "Backdoor"
+    },
+    {
+      "name": "PUA.FakeActivator",
+      "title": "Фейковый активатор Windows",
+      "description": "Текстовые маркеры «активаторов», которые часто несут майнер или стилер.",
+      "regex": "(?:kmsauto|kmspico|auto\\s*activator|windows\\s+loader\\s+activation|activate\\s+windows\\s+for\\s+free)",
+      "extensions": [
+        ".bat",
+        ".cmd",
+        ".ps1",
+        ".txt",
+        ".vbs",
+        ".url",
+        ".html"
+      ],
+      "severity": "low",
+      "family": "PUA"
+    }
+  ]
+}

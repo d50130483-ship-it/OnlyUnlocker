@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Сборка
+build/
+dist/
+*.spec.bak
+*.exe
+
+# Данные приложения (карантин, журнал, настройки)
+data/quarantine/
+*.qtn
+history.jsonl
+settings.json
+
+# ОС
+.DS_Store
+Thumbs.db
+desktop.ini
